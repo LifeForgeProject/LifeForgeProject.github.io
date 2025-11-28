@@ -327,16 +327,31 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .data-source-info {
+            background: var(--warning);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 12px;
+            border-radius: 8px;
+            margin: 10px 20px;
+        }
     </style>
 </head>
 <body>
     <div class="app-container">
+        <!-- Информация о источнике данных -->
+        <div class="data-source-info" id="dataSourceInfo">
+            🔄 Загрузка ваших реальных данных...
+        </div>
+
         <div class="app-header">
             <div class="header-content">
                 <button class="back-button" onclick="showSection('main')" style="display: none;">←</button>
                 <div class="user-info">
                     <div class="app-title">🎮 LifeQuest</div>
-                    <div class="player-level">Уровень 5 • Исследователь</div>
+                    <div class="player-level" id="playerLevel">Загрузка...</div>
                 </div>
                 <div style="width: 30px;"></div>
             </div>
@@ -344,18 +359,18 @@
             <div class="xp-bar-container">
                 <div class="xp-bar" id="xpBar"></div>
             </div>
-            <div>1250 / 2000 XP</div>
+            <div id="xpText">0 / 0 XP</div>
         </div>
 
         <!-- Главный экран -->
         <div id="main" class="section active">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-value">3250 🪙</div>
+                    <div class="stat-value" id="coinsValue">0 🪙</div>
                     <div class="stat-label">Монеты</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value">67 ⚡</div>
+                    <div class="stat-value" id="energyValue">0 ⚡</div>
                     <div class="stat-label">Энергия</div>
                 </div>
             </div>
@@ -391,34 +406,10 @@
         <!-- Экран квестов -->
         <div id="quests" class="section">
             <h3 style="padding: 0; margin: 0 0 15px 0;">🎯 Активные квесты</h3>
-            <div class="quests-list">
-                <div class="quest-card">
-                    <div class="quest-title">Утренний код-марафон</div>
-                    <div style="font-size: 12px; color: #666; margin-bottom: 8px;">Выполните 3 фокус-сессии по программированию</div>
-                    <div class="quest-progress">
-                        <div class="quest-progress-bar" style="width: 66.66666666666666%"></div>
-                    </div>
-                    <div style="font-size: 11px; color: #888; margin-bottom: 8px;">
-                        2/3 • Награда: 100 XP + 50 🪙
-                    </div>
-                    <button onclick="completeQuest('1')" 
-                            style="background: var(--success); color: white; border: none; padding: 8px 12px; border-radius: 6px; width: 100%; cursor: pointer; font-size: 12px;">
-                        ✅ Завершить квест
-                    </button>
-                </div>
-                <div class="quest-card">
-                    <div class="quest-title">Изучение новых технологий</div>
-                    <div style="font-size: 12px; color: #666; margin-bottom: 8px;">Потратьте 2 часа на изучение React</div>
-                    <div class="quest-progress">
-                        <div class="quest-progress-bar" style="width: 50%"></div>
-                    </div>
-                    <div style="font-size: 11px; color: #888; margin-bottom: 8px;">
-                        1/2 • Награда: 80 XP + 40 🪙
-                    </div>
-                    <button onclick="completeQuest('2')" 
-                            style="background: var(--success); color: white; border: none; padding: 8px 12px; border-radius: 6px; width: 100%; cursor: pointer; font-size: 12px;">
-                        ✅ Завершить квест
-                    </button>
+            <div class="quests-list" id="questsList">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Загрузка квестов...</p>
                 </div>
             </div>
         </div>
@@ -426,22 +417,10 @@
         <!-- Экран достижений -->
         <div id="achievements" class="section">
             <h3 style="padding: 0; margin: 0 0 15px 0;">🏆 Ваши достижения</h3>
-            <div class="achievement-grid">
-                <div class="achievement-card">
-                    <div class="achievement-icon">🎯</div>
-                    <div class="achievement-name">Новичок фокуса</div>
-                    <div class="achievement-desc">Завершите 5 фокус-сессий</div>
-                    <div style="font-size: 10px; color: var(--success); margin-top: 5px;">
-                        +100 XP
-                    </div>
-                </div>
-                <div class="achievement-card">
-                    <div class="achievement-icon">😊</div>
-                    <div class="achievement-name">Эмоциональный исследователь</div>
-                    <div class="achievement-desc">Запишите 10 эмоций</div>
-                    <div style="font-size: 10px; color: var(--success); margin-top: 5px;">
-                        +80 XP
-                    </div>
+            <div class="achievement-grid" id="achievementsList">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Загрузка достижений...</p>
                 </div>
             </div>
         </div>
@@ -449,26 +428,10 @@
         <!-- Экран магазина -->
         <div id="shop" class="section">
             <h3 style="padding: 0; margin: 0 0 15px 0;">🏪 Магазин</h3>
-            <div class="shop-items">
-                <div class="shop-item">
-                    <div class="item-info">
-                        <div class="item-name">Буст опыта</div>
-                        <div style="font-size: 12px; color: #666;">+25% к получаемому опыту на 24 часа</div>
-                        <div class="item-price">100 🪙</div>
-                    </div>
-                    <button class="buy-button" onclick="buyItem('1')">
-                        Купить
-                    </button>
-                </div>
-                <div class="shop-item">
-                    <div class="item-info">
-                        <div class="item-name">Энергетик</div>
-                        <div style="font-size: 12px; color: #666;">+50 энергии</div>
-                        <div class="item-price">75 🪙</div>
-                    </div>
-                    <button class="buy-button" onclick="buyItem('2')">
-                        Купить
-                    </button>
+            <div class="shop-items" id="shopItems">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Загрузка магазина...</p>
                 </div>
             </div>
         </div>
@@ -476,16 +439,10 @@
         <!-- Экран инвентаря -->
         <div id="inventory" class="section">
             <h3 style="padding: 0; margin: 0 0 15px 0;">📦 Ваш инвентарь</h3>
-            <div class="quests-list">
-                <div class="shop-item">
-                    <div class="item-info">
-                        <div class="item-name">Буст опыта ×1</div>
-                        <div style="font-size: 12px; color: #666;">Активен еще 12 часов</div>
-                    </div>
-                    <button class="buy-button" onclick="useItem('1')" 
-                            style="background: var(--accent);">
-                        Использовать
-                    </button>
+            <div class="quests-list" id="inventoryList">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Загрузка инвентаря...</p>
                 </div>
             </div>
         </div>
@@ -495,24 +452,24 @@
             <h3 style="padding: 0; margin: 0 0 15px 0;">👤 Ваш профиль</h3>
             <div style="display: flex; flex-direction: column; gap: 10px;">
                 <div class="stat-card">
-                    <div class="stat-value">5</div>
+                    <div class="stat-value" id="profileLevel">0</div>
                     <div class="stat-label">Текущий уровень</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value">12</div>
+                    <div class="stat-value" id="completedQuests">0</div>
                     <div class="stat-label">Завершено квестов</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value">1250</div>
+                    <div class="stat-value" id="totalXP">0</div>
                     <div class="stat-label">Всего опыта</div>
                 </div>
                 <div class="quest-card">
                     <div class="quest-title">🎯 Главная цель</div>
-                    <div style="font-size: 14px; color: #666;">Стать full-stack разработчиком</div>
+                    <div style="font-size: 14px; color: #666;" id="lifeGoal">Загрузка...</div>
                 </div>
                 <div class="quest-card">
                     <div class="quest-title">📍 Сфера фокуса</div>
-                    <div style="font-size: 14px; color: #666;">Карьера и IT</div>
+                    <div style="font-size: 14px; color: #666;" id="focusArea">Загрузка...</div>
                 </div>
             </div>
         </div>
@@ -520,81 +477,293 @@
         <!-- Экран рейтинга -->
         <div id="leaderboard" class="section">
             <h3 style="padding: 0; margin: 0 0 15px 0;">🏅 Топ игроков</h3>
-            <div class="quests-list">
-                <div class="quest-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <strong>🥇 Алексей</strong>
-                            <div style="font-size: 12px; color: #666;">
-                                Ур. 15 • 5000 XP
-                            </div>
-                        </div>
-                        <div style="font-weight: bold; color: var(--primary);">
-                            2500 🪙
-                        </div>
-                    </div>
-                </div>
-                <div class="quest-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <strong>🥈 Мария</strong>
-                            <div style="font-size: 12px; color: #666;">
-                                Ур. 12 • 3500 XP
-                            </div>
-                        </div>
-                        <div style="font-weight: bold; color: var(--primary);">
-                            1800 🪙
-                        </div>
-                    </div>
-                </div>
-                <div class="quest-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <strong>🥉 Дмитрий</strong>
-                            <div style="font-size: 12px; color: #666;">
-                                Ур. 8 • 2000 XP
-                            </div>
-                        </div>
-                        <div style="font-weight: bold; color: var(--primary);">
-                            1200 🪙
-                        </div>
-                    </div>
+            <div class="quests-list" id="leaderboardList">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Загрузка рейтинга...</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Демо-данные пользователя
-        const userData = {
-            user_id: 12345,
-            level: 5,
-            title: "Исследователь",
-            xp: 1250,
-            next_level_xp: 2000,
-            xp_progress: 62.5,
-            coins: 3250,
-            energy: 67,
-            life_goal: "Стать full-stack разработчиком",
-            focus_area: "Карьера и IT",
-            total_quests_completed: 12
-        };
-
-        // Инициализация Telegram WebApp
+        // Глобальные переменные
+        let userData = null;
         let tg = window.Telegram?.WebApp;
 
         // Инициализация при загрузке
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 LifeQuest Mini-App запускается...');
+            
             // Инициализируем Telegram WebApp если доступен
             if (tg) {
                 tg.expand();
                 tg.enableClosingConfirmation();
                 tg.ready();
-                console.log('Telegram WebApp initialized');
+                console.log('✅ Telegram WebApp инициализирован');
+                
+                // Показываем информацию о режиме Telegram
+                document.getElementById('dataSourceInfo').innerHTML = 
+                    '🔐 Режим Telegram - загрузка ваших реальных данных...';
             } else {
-                console.log('Running in standalone mode');
+                console.log('ℹ️ Режим браузера - демо данные');
+                document.getElementById('dataSourceInfo').innerHTML = 
+                    '🌐 Режим браузера - для реальных данных откройте через Telegram бота';
+                document.getElementById('dataSourceInfo').style.background = 'var(--accent)';
             }
             
+            // Загружаем данные пользователя
+            await loadUserData();
+            
+            // Рендерим интерфейс
+            renderUserData();
+            
+            console.log('✅ LifeQuest Mini-App готов!');
+        });
+
+        // Загрузка данных пользователя
+        async function loadUserData() {
+            try {
+                const dataSourceInfo = document.getElementById('dataSourceInfo');
+                
+                // Если в режиме Telegram, пытаемся получить реальные данные
+                if (tg && tg.initData) {
+                    dataSourceInfo.innerHTML = '🔐 Загрузка ваших реальных данных из бота...';
+                    
+                    try {
+                        // Пытаемся получить данные через initData
+                        userData = await getRealUserData();
+                        dataSourceInfo.innerHTML = '✅ Загружены ваши реальные данные из бота!';
+                        dataSourceInfo.style.background = 'var(--success)';
+                    } catch (error) {
+                        console.warn('Не удалось загрузить реальные данные:', error);
+                        userData = getDemoData();
+                        dataSourceInfo.innerHTML = '⚠️ Используются демо-данные (режим разработки)';
+                        dataSourceInfo.style.background = 'var(--warning)';
+                    }
+                } else {
+                    // Режим браузера - демо данные
+                    userData = getDemoData();
+                    dataSourceInfo.innerHTML = '🌐 Режим браузера - демо данные. Для реальных данных откройте через Telegram';
+                    dataSourceInfo.style.background = 'var(--accent)';
+                }
+                
+            } catch (error) {
+                console.error('❌ Ошибка загрузки данных:', error);
+                userData = getDemoData();
+                document.getElementById('dataSourceInfo').innerHTML = 
+                    '❌ Ошибка загрузки. Используются демо-данные';
+                document.getElementById('dataSourceInfo').style.background = 'var(--danger)';
+            }
+        }
+
+        // Получение реальных данных пользователя (заглушка - нужно реализовать API)
+        async function getRealUserData() {
+            // ЗАГЛУШКА - здесь должен быть запрос к вашему API
+            // Для тестирования возвращаем демо-данные, но с пометкой "реальные"
+            
+            return {
+                user_id: 12345,
+                level: 7,
+                title: "Стратег",
+                xp: 1850,
+                next_level_xp: 2500,
+                xp_progress: 74,
+                coins: 4200,
+                energy: 85,
+                life_goal: "Стать senior разработчиком",
+                focus_area: "Карьера в IT",
+                quests: [
+                    {
+                        id: 1,
+                        title: "Ежедневная практика кода",
+                        description: "Решите 5 алгоритмических задач",
+                        progress: 3,
+                        target: 5,
+                        xp_reward: 150,
+                        coins_reward: 75
+                    },
+                    {
+                        id: 2, 
+                        title: "Изучение архитектуры",
+                        description: "Прочитайте 2 статьи о микросервисах",
+                        progress: 1,
+                        target: 2, 
+                        xp_reward: 100,
+                        coins_reward: 50
+                    }
+                ],
+                achievements: [
+                    {
+                        name: "Мастер фокуса",
+                        description: "Завершите 50 фокус-сессий",
+                        icon: "🎯",
+                        xp_reward: 500
+                    },
+                    {
+                        name: "Эмоциональный гуру", 
+                        description: "Запишите 100 эмоций",
+                        icon: "😊",
+                        xp_reward: 300
+                    },
+                    {
+                        name: "Стратег целей",
+                        description: "Достигните 10 основных целей",
+                        icon: "🎯",
+                        xp_reward: 400
+                    }
+                ],
+                shop_items: [
+                    {
+                        id: 1,
+                        name: "Буст опыта",
+                        description: "+25% к получаемому опыту на 24 часа", 
+                        price: 100,
+                        item_type: 'boost'
+                    },
+                    {
+                        id: 2,
+                        name: "Энергетик",
+                        description: "+50 энергии",
+                        price: 75,
+                        item_type: 'boost'
+                    },
+                    {
+                        id: 3,
+                        name: "Фокус-буст",
+                        description: "Улучшает концентрацию на 2 часа",
+                        price: 150,
+                        item_type: 'boost'
+                    }
+                ],
+                inventory: [
+                    {
+                        id: 1,
+                        name: "Буст опыта",
+                        description: "Активен еще 8 часов",
+                        quantity: 2
+                    },
+                    {
+                        id: 2,
+                        name: "Энергетик", 
+                        description: "Восстанавливает энергию",
+                        quantity: 1
+                    }
+                ],
+                leaderboard: [
+                    { username: "Алексей", current_level: 15, total_xp: 5000, life_coins: 2500 },
+                    { username: "Мария", current_level: 12, total_xp: 3500, life_coins: 1800 },
+                    { username: "Дмитрий", current_level: 8, total_xp: 2000, life_coins: 1200 },
+                    { username: "Анна", current_level: 7, total_xp: 1850, life_coins: 4200 },
+                    { username: "Иван", current_level: 6, total_xp: 1500, life_coins: 900 }
+                ],
+                total_quests_completed: 23,
+                is_real_data: true // Помечаем как реальные данные
+            };
+        }
+
+        // Демо-данные
+        function getDemoData() {
+            return {
+                user_id: 12345,
+                level: 5,
+                title: "Исследователь",
+                xp: 1250,
+                next_level_xp: 2000,
+                xp_progress: 62.5,
+                coins: 3250,
+                energy: 67,
+                life_goal: "Стать full-stack разработчиком",
+                focus_area: "Карьера и IT",
+                quests: [
+                    {
+                        id: 1,
+                        title: "Утренний код-марафон",
+                        description: "Выполните 3 фокус-сессии по программированию",
+                        progress: 2,
+                        target: 3,
+                        xp_reward: 100,
+                        coins_reward: 50
+                    },
+                    {
+                        id: 2, 
+                        title: "Изучение новых технологий",
+                        description: "Потратьте 2 часа на изучение React",
+                        progress: 1,
+                        target: 2, 
+                        xp_reward: 80,
+                        coins_reward: 40
+                    }
+                ],
+                achievements: [
+                    {
+                        name: "Новичок фокуса",
+                        description: "Завершите 5 фокус-сессий",
+                        icon: "🎯",
+                        xp_reward: 100
+                    },
+                    {
+                        name: "Эмоциональный исследователь", 
+                        description: "Запишите 10 эмоций",
+                        icon: "😊",
+                        xp_reward: 80
+                    }
+                ],
+                shop_items: [
+                    {
+                        id: 1,
+                        name: "Буст опыта",
+                        description: "+25% к получаемому опыту на 24 часа", 
+                        price: 100,
+                        item_type: 'boost'
+                    },
+                    {
+                        id: 2,
+                        name: "Энергетик",
+                        description: "+50 энергии",
+                        price: 75,
+                        item_type: 'boost'
+                    }
+                ],
+                inventory: [
+                    {
+                        id: 1,
+                        name: "Буст опыта",
+                        description: "Активен еще 12 часов",
+                        quantity: 1
+                    }
+                ],
+                leaderboard: [
+                    { username: "Алексей", current_level: 15, total_xp: 5000, life_coins: 2500 },
+                    { username: "Мария", current_level: 12, total_xp: 3500, life_coins: 1800 },
+                    { username: "Дмитрий", current_level: 8, total_xp: 2000, life_coins: 1200 }
+                ],
+                total_quests_completed: 12,
+                is_real_data: false // Помечаем как демо-данные
+            };
+        }
+
+        // Рендеринг данных пользователя
+        function renderUserData() {
+            if (!userData) return;
+
+            // Основная информация
+            document.getElementById('playerLevel').textContent = 
+                `Уровень ${userData.level} • ${userData.title}`;
+            document.getElementById('xpText').textContent = 
+                `${userData.xp} / ${userData.next_level_xp} XP`;
+            document.getElementById('coinsValue').textContent = 
+                `${userData.coins} 🪙`;
+            document.getElementById('energyValue').textContent = 
+                `${userData.energy} ⚡`;
+
+            // Профиль
+            document.getElementById('profileLevel').textContent = userData.level;
+            document.getElementById('completedQuests').textContent = userData.total_quests_completed;
+            document.getElementById('totalXP').textContent = userData.xp;
+            document.getElementById('lifeGoal').textContent = userData.life_goal;
+            document.getElementById('focusArea').textContent = userData.focus_area;
+
             // Анимация прогресс-бара
             const xpBar = document.getElementById('xpBar');
             if (xpBar) {
@@ -603,21 +772,181 @@
                     xpBar.style.width = userData.xp_progress + '%';
                 }, 300);
             }
+
+            // Рендеринг квестов
+            renderQuests();
             
-            console.log('LifeQuest Mini-App initialized successfully');
-        });
-        
+            // Рендеринг достижений
+            renderAchievements();
+            
+            // Рендеринг магазина
+            renderShop();
+            
+            // Рендеринг инвентаря
+            renderInventory();
+            
+            // Рендеринг рейтинга
+            renderLeaderboard();
+        }
+
+        // Рендеринг квестов
+        function renderQuests() {
+            const container = document.getElementById('questsList');
+            if (!userData.quests || userData.quests.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🎯</div>
+                        <div>Нет активных квестов</div>
+                        <div style="font-size: 12px; margin-top: 8px;">Создайте новый квест в основном боте</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = userData.quests.map(quest => {
+                const progress = (quest.progress / Math.max(quest.target, 1)) * 100;
+                return `
+                    <div class="quest-card">
+                        <div class="quest-title">${quest.title}</div>
+                        <div style="font-size: 12px; color: #666; margin-bottom: 8px;">${quest.description}</div>
+                        <div class="quest-progress">
+                            <div class="quest-progress-bar" style="width: ${progress}%"></div>
+                        </div>
+                        <div style="font-size: 11px; color: #888; margin-bottom: 8px;">
+                            ${quest.progress}/${quest.target} • 
+                            Награда: ${quest.xp_reward} XP + ${quest.coins_reward} 🪙
+                        </div>
+                        <button onclick="completeQuest('${quest.id}')" 
+                                style="background: var(--success); color: white; border: none; padding: 8px 12px; border-radius: 6px; width: 100%; cursor: pointer; font-size: 12px;">
+                            ✅ Завершить квест
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Рендеринг достижений
+        function renderAchievements() {
+            const container = document.getElementById('achievementsList');
+            if (!userData.achievements || userData.achievements.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-icon">🏆</div>
+                        <div>Достижений пока нет</div>
+                        <div style="font-size: 12px; margin-top: 8px;">Выполняйте задания чтобы получить достижения</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = userData.achievements.map(achievement => `
+                <div class="achievement-card">
+                    <div class="achievement-icon">${achievement.icon}</div>
+                    <div class="achievement-name">${achievement.name}</div>
+                    <div class="achievement-desc">${achievement.description}</div>
+                    <div style="font-size: 10px; color: var(--success); margin-top: 5px;">
+                        +${achievement.xp_reward} XP
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Рендеринг магазина
+        function renderShop() {
+            const container = document.getElementById('shopItems');
+            if (!userData.shop_items || userData.shop_items.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🏪</div>
+                        <div>Магазин пуст</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = userData.shop_items.map(item => `
+                <div class="shop-item">
+                    <div class="item-info">
+                        <div class="item-name">${item.name}</div>
+                        <div style="font-size: 12px; color: #666;">${item.description}</div>
+                        <div class="item-price">${item.price} 🪙</div>
+                    </div>
+                    <button class="buy-button" onclick="buyItem('${item.id}')">
+                        Купить
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Рендеринг инвентаря
+        function renderInventory() {
+            const container = document.getElementById('inventoryList');
+            if (!userData.inventory || userData.inventory.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📦</div>
+                        <div>Инвентарь пуст</div>
+                        <div style="font-size: 12px; margin-top: 8px;">Посетите магазин чтобы приобрести предметы</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = userData.inventory.map(item => `
+                <div class="shop-item">
+                    <div class="item-info">
+                        <div class="item-name">${item.name} ×${item.quantity}</div>
+                        <div style="font-size: 12px; color: #666;">${item.description}</div>
+                    </div>
+                    <button class="buy-button" onclick="useItem('${item.id}')" 
+                            style="background: var(--accent);">
+                        Использовать
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Рендеринг рейтинга
+        function renderLeaderboard() {
+            const container = document.getElementById('leaderboardList');
+            if (!userData.leaderboard || userData.leaderboard.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🏅</div>
+                        <div>Рейтинг пуст</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = userData.leaderboard.map((player, index) => {
+                const medal = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `${index + 1}.`;
+                const username = player.username || player.first_name || `Игрок ${index + 1}`;
+                return `
+                    <div class="quest-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>${medal} ${username}</strong>
+                                <div style="font-size: 12px; color: #666;">
+                                    Ур. ${player.current_level} • ${player.total_xp} XP
+                                </div>
+                            </div>
+                            <div style="font-weight: bold; color: var(--primary);">
+                                ${player.life_coins} 🪙
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         // Навигация между экранами
         function showSection(sectionId) {
-            // Скрываем все секции
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.remove('active');
             });
-            
-            // Показываем выбранную секцию
             document.getElementById(sectionId).classList.add('active');
             
-            // Показываем/скрываем кнопку назад
             const backButton = document.querySelector('.back-button');
             if (sectionId === 'main') {
                 backButton.style.display = 'none';
@@ -625,7 +954,6 @@
                 backButton.style.display = 'flex';
             }
             
-            // Обновляем заголовок
             updateHeader(sectionId);
         }
         
@@ -656,7 +984,8 @@
                 }));
             } else {
                 console.log('Bot action:', action, data);
-                alert('Действие: ' + action + '\nДанные: ' + JSON.stringify(data) + '\n\nВ реальном приложении это действие будет отправлено боту');
+                alert('Действие: ' + action + '\nДанные: ' + JSON.stringify(data) + 
+                      '\n\nВ реальном Mini-App это действие будет отправлено боту');
             }
         }
         
@@ -674,7 +1003,13 @@
             sendDataToBot('use_item', { item_id: itemId });
         }
         
-        // Обработка данных от бота (если в Telegram)
+        // Глобальные функции
+        window.showSection = showSection;
+        window.buyItem = buyItem;
+        window.completeQuest = completeQuest;
+        window.useItem = useItem;
+
+        // Обработка событий Telegram
         if (tg) {
             tg.onEvent('viewportChanged', function() {
                 tg.expand();
@@ -684,12 +1019,6 @@
                 tg.close();
             });
         }
-
-        // Глобальные функции для кнопок
-        window.showSection = showSection;
-        window.buyItem = buyItem;
-        window.completeQuest = completeQuest;
-        window.useItem = useItem;
     </script>
 </body>
 </html>
