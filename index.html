@@ -557,109 +557,29 @@
             }
         }
 
-        // Получение реальных данных пользователя (заглушка - нужно реализовать API)
+        // Базовый адрес API вашего бота на Railway.
+        // ЗАМЕНИТЕ на реальный домен после деплоя, например:
+        // const API_BASE_URL = "https://lifeforge-bot-production.up.railway.app";
+        const API_BASE_URL = "https://ЗАМЕНИТЕ-НА-ВАШ-ДОМЕН.up.railway.app";
+
+        // Получение реальных данных пользователя через API бота
         async function getRealUserData() {
-            // ЗАГЛУШКА - здесь должен быть запрос к вашему API
-            // Для тестирования возвращаем демо-данные, но с пометкой "реальные"
-            
-            return {
-                user_id: 12345,
-                level: 7,
-                title: "Стратег",
-                xp: 1850,
-                next_level_xp: 2500,
-                xp_progress: 74,
-                coins: 4200,
-                energy: 85,
-                life_goal: "Стать senior разработчиком",
-                focus_area: "Карьера в IT",
-                quests: [
-                    {
-                        id: 1,
-                        title: "Ежедневная практика кода",
-                        description: "Решите 5 алгоритмических задач",
-                        progress: 3,
-                        target: 5,
-                        xp_reward: 150,
-                        coins_reward: 75
-                    },
-                    {
-                        id: 2, 
-                        title: "Изучение архитектуры",
-                        description: "Прочитайте 2 статьи о микросервисах",
-                        progress: 1,
-                        target: 2, 
-                        xp_reward: 100,
-                        coins_reward: 50
-                    }
-                ],
-                achievements: [
-                    {
-                        name: "Мастер фокуса",
-                        description: "Завершите 50 фокус-сессий",
-                        icon: "🎯",
-                        xp_reward: 500
-                    },
-                    {
-                        name: "Эмоциональный гуру", 
-                        description: "Запишите 100 эмоций",
-                        icon: "😊",
-                        xp_reward: 300
-                    },
-                    {
-                        name: "Стратег целей",
-                        description: "Достигните 10 основных целей",
-                        icon: "🎯",
-                        xp_reward: 400
-                    }
-                ],
-                shop_items: [
-                    {
-                        id: 1,
-                        name: "Буст опыта",
-                        description: "+25% к получаемому опыту на 24 часа", 
-                        price: 100,
-                        item_type: 'boost'
-                    },
-                    {
-                        id: 2,
-                        name: "Энергетик",
-                        description: "+50 энергии",
-                        price: 75,
-                        item_type: 'boost'
-                    },
-                    {
-                        id: 3,
-                        name: "Фокус-буст",
-                        description: "Улучшает концентрацию на 2 часа",
-                        price: 150,
-                        item_type: 'boost'
-                    }
-                ],
-                inventory: [
-                    {
-                        id: 1,
-                        name: "Буст опыта",
-                        description: "Активен еще 8 часов",
-                        quantity: 2
-                    },
-                    {
-                        id: 2,
-                        name: "Энергетик", 
-                        description: "Восстанавливает энергию",
-                        quantity: 1
-                    }
-                ],
-                leaderboard: [
-                    { username: "Алексей", current_level: 15, total_xp: 5000, life_coins: 2500 },
-                    { username: "Мария", current_level: 12, total_xp: 3500, life_coins: 1800 },
-                    { username: "Дмитрий", current_level: 8, total_xp: 2000, life_coins: 1200 },
-                    { username: "Анна", current_level: 7, total_xp: 1850, life_coins: 4200 },
-                    { username: "Иван", current_level: 6, total_xp: 1500, life_coins: 900 }
-                ],
-                total_quests_completed: 23,
-                is_real_data: true // Помечаем как реальные данные
-            };
+            const initData = tg?.initData;
+            if (!initData) {
+                throw new Error('Нет initData — Mini-App открыт не через Telegram');
+            }
+
+            const response = await fetch(`${API_BASE_URL}/api/mini-app/user-data`, {
+                headers: {
+                    'Authorization': `tma ${initData}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Ошибка API: ${response.status}`);
+            }
+
+            return await response.json();
         }
 
         // Демо-данные
